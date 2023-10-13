@@ -1,11 +1,12 @@
 import os
+import uuid
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python_operator import PythonOperator
 from google.cloud import bigquery
 from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 from airflow.contrib.operators.gcs_to_bq import GoogleCloudStorageToBigQueryOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
 
 
@@ -22,15 +23,11 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
-# def create_dataset():
-#     client = bigquery.Client()
-#     dataset_ref = client.dataset('gcs_to_bg_demo', project='burner-mankumar24-02')
-#     dataset = bigquery.Dataset(dataset_ref)
-#     client.create_dataset(dataset)
+
 
 # DAG definitions
 with DAG(
-    dag_id='GCS_to_BQ_and_AGG_v7',
+    dag_id='GCS_to_BQ_and_AGG_to_GCS_v9',
     catchup=False,
     schedule_interval=timedelta(days=1),
     default_args=default_args
@@ -42,12 +39,7 @@ with DAG(
     )
 
     
-    # Create BigQuery dataset
-    # create_bq_dataset = PythonOperator(
-    #     task_id='create_dataset',
-    #     python_callable=create_dataset,
-    #     dag=dag,
-    # )
+
     
     # GCS to BigQuery data load Operator and task for sales data
     gcs_to_bq_load_sales_data = GoogleCloudStorageToBigQueryOperator(
@@ -91,10 +83,36 @@ with DAG(
         use_legacy_sql=False,
         allow_large_results=True,
         sql="CREATE OR REPLACE view gcs_to_bg_demo.daily_sales AS \
-        SELECT sales.date as date, sales.product_name as product_name, products.category as category, SUM(SAFE_CAST(sales.quantity AS INT64)) as quantity, SUM(SAFE_CAST(sales.total_price AS FLOAT64)) as total_price \
+        SELECT sales.date as date, sales.product_name as product_name, products.category as category, SUM(SAFE_CAST(sales.quantity AS INT64)) as quantity, ROUND(SUM(SAFE_CAST(sales.total_price AS FLOAT64)), 2) as total_price \
         FROM `burner-mankumar24-02.gcs_to_bg_demo.sales_records` as sales, `burner-mankumar24-02.gcs_to_bg_demo.products` as products \
         group by date, product_name, category",
         dag=dag
+    )
+
+    # Define the date format
+    date_format = datetime.now().strftime("%Y%m%d")
+    
+    # Generate a UUID
+    unique_id = str(uuid.uuid4().hex)
+
+
+    query_bq_and_export_data_to_gcs = BigQueryInsertJobOperator(
+        task_id='query_bq_and_export_data_to_gcs',
+        configuration = {
+            "query": {
+                "query": f"""
+                EXPORT DATA OPTIONS (
+                    uri = 'gs://us-central1-burner-mankumar24-02-export-data-bucket/daily_sales_records_{date_format}_*.csv',
+                    format = 'CSV',
+                    overwrite = true,
+                    header = false,
+                    field_delimiter = ','
+                ) AS SELECT date, product_name, category, quantity, total_price FROM `burner-mankumar24-02.gcs_to_bg_demo.daily_sales`;
+                """,
+                "useLegacySql": False
+            }
+        },
+        location = 'us-central1'
     )
 
     # Dummy end task
@@ -103,4 +121,4 @@ with DAG(
         dag=dag
     )
 
-start >> [gcs_to_bq_load_sales_data, gcs_to_bq_load_products_data] >> create_aggr_bq_view >> end
+start >> [gcs_to_bq_load_sales_data, gcs_to_bq_load_products_data] >> create_aggr_bq_view >> query_bq_and_export_data_to_gcs >> end
