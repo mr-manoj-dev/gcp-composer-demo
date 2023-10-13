@@ -18,20 +18,19 @@ else
 fi
 
 echo "config directory: $config_dir/config/${config_file}"
-source $config_dir/config/${config_file}  
+source $config_dir/config/${config_file}     
 
 
+#Add roles to the service account
 SERVICE_ACCOUNT="${CMP_SVC_ACCOUNT}@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+for ROLE in "${ROLES[@]}"
+do
+  echo "gcloud projects add-iam-policy-binding $GCP_PROJECT_ID --member=serviceAccount:$SERVICE_ACCOUNT --role=$ROLE"
+  gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$SERVICE_ACCOUNT" \
+    --role="$ROLE"
+done
 
-# Check for service account already exists or not. Create a new if doesn't exist.
-gcloud iam service-accounts describe ${SERVICE_ACCOUNT}
-return_code=$?
-if [ $return_code -eq 0 ]; then
-    echo "Service account already exists!"
-else    
-    echo "Creating service account : ${SERVICE_ACCOUNT}"
-    gcloud iam service-accounts create $CMP_SVC_ACCOUNT --description "service account for composer" --display-name "service account for composer"
-fi    
 
 end=`date +%s`
 runtime=$((end-start))
