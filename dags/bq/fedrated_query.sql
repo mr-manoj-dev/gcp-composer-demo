@@ -1,0 +1,1 @@
+INSERT INTO `burner-mankumar24-02.span_to_bq_demo.products` (product_id, product_name, product_description) SELECT * FROM EXTERNAL_QUERY("burner-mankumar24-02.us-central1.span-con-01", "SELECT * FROM products")
