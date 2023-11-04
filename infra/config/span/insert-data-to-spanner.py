@@ -19,7 +19,7 @@ unique_products = [
         'product_name': f'Product_{i + 1}',
         'product_description': f'Description of Product {i + 1}'
     }
-    for i in range(100,200)
+    for i in range(290100,300100)
 ]
 
 
