@@ -1,0 +1,32 @@
+@startuml
+
+title Decision Matrix for Airflow Version Selection
+
+label(top: Start)
+
+node("Is autoscaling required?")
+node("Is Kubernetes version 1.16 or higher required?")
+node("Are advanced security features required?")
+node("Is better performance and scalability required?")
+node("Is easier setup and management desired?")
+node("Use Airflow v2")
+node("Use Airflow v1")
+
+edge("Is autoscaling required?", "Is Kubernetes version 1.16 or higher required?", autoscale)
+edge("Is autoscaling required?", "Are advanced security features required?", !autoscale)
+
+edge("Is Kubernetes version 1.16 or higher required?", "Is better performance and scalability required?", k8s)
+edge("Is Kubernetes version 1.16 or higher required?", "Is easier setup and management desired?", !k8s)
+
+edge("Is advanced security features required?", "Use Airflow v2", security)
+edge("Is advanced security features required?", "Use Airflow v1", !security)
+
+edge("Is better performance and scalability required?", "Use Airflow v2", performance)
+edge("Is better performance and scalability required?", "Use Airflow v1", !performance)
+
+edge("Is easier setup and management desired?", "Use Airflow v2", setup)
+edge("Is easier setup and management desired?", "Use Airflow v1", !setup)
+
+label(bottom: End)
+
+@enduml

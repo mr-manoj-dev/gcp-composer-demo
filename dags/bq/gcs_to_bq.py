@@ -44,7 +44,7 @@ with DAG(
     # GCS to BigQuery data load Operator and task for sales data
     gcs_to_bq_load_sales_data = GoogleCloudStorageToBigQueryOperator(
         task_id='gcs_to_bq_load_sales_data',
-        bucket='us-central1-ccpv1-01-6d727e86-bucket',
+        bucket='us-central1-ccpv1-01-8d14313a-bucket',
         source_objects=['data/sales_records.csv'],
         destination_project_dataset_table='burner-mankumar24-02.gcs_to_bg_demo.sales_records',
         schema_fields=[
@@ -63,7 +63,7 @@ with DAG(
     # GCS to BigQuery data load Operator and task for sales data
     gcs_to_bq_load_products_data = GoogleCloudStorageToBigQueryOperator(
         task_id='gcs_to_bq_load_products_data',
-        bucket='us-central1-ccpv1-01-6d727e86-bucket',
+        bucket='us-central1-ccpv1-01-8d14313a-bucket',
         source_objects=['data/products.csv'],
         destination_project_dataset_table='burner-mankumar24-02.gcs_to_bg_demo.products',
         schema_fields=[
@@ -78,8 +78,8 @@ with DAG(
     )
 
     # BigQuery task, operator
-    create_aggr_bq_view = BigQueryOperator(
-        task_id='create_aggr_bq_view',
+    aggr_and_create_bq_view = BigQueryOperator(
+        task_id='aggr_and_create_bq_view',
         use_legacy_sql=False,
         allow_large_results=True,
         sql="CREATE OR REPLACE view gcs_to_bg_demo.daily_sales AS \
@@ -102,7 +102,7 @@ with DAG(
             "query": {
                 "query": f"""
                 EXPORT DATA OPTIONS (
-                    uri = 'gs://us-central1-burner-mankumar24-02-export-data-bucket/daily_sales_records_{date_format}_*.csv',
+                    uri = 'gs://us-central1-ccpv1-01-8d14313a-bucket/data/extracts/daily_sales_records_{date_format}_*.csv',
                     format = 'CSV',
                     overwrite = true,
                     header = false,
@@ -121,4 +121,4 @@ with DAG(
         dag=dag
     )
 
-start >> [gcs_to_bq_load_sales_data, gcs_to_bq_load_products_data] >> create_aggr_bq_view >> query_bq_and_export_data_to_gcs >> end
+start >> [gcs_to_bq_load_sales_data, gcs_to_bq_load_products_data] >> aggr_and_create_bq_view >> query_bq_and_export_data_to_gcs >> end

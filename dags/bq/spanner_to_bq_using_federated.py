@@ -20,7 +20,7 @@ default_args = {
 
 # DAG definitions
 with DAG(
-    dag_id='SPN_TO_BQ_FED_v5',
+    dag_id='SPN_TO_BQ_FED_v3',
     catchup=False,
     schedule_interval=timedelta(days=1),
     default_args=default_args
@@ -44,27 +44,15 @@ location = 'us-central1'
 
 
 #federated_query = f'INSERT INTO {bigquery_dataset}.{bigquery_table} (product_id, product_name, product_description) SELECT * FROM EXTERNAL_QUERY("{bigquery_project}.{location}.{spanner_conn_name}", "SELECT * FROM {spanner_table};")'
+#-- test connection
+#SELECT * FROM EXTERNAL_QUERY("burner-mankumar24-02.us-central1.span-con-01", "SELECT * FROM INFORMATION_SCHEMA.TABLES;");
+
+#-- query to see spanner tabel query result
+#SELECT * FROM EXTERNAL_QUERY("burner-mankumar24-02.us-central1.span-con-01", "SELECT * FROM PRODUCTS;");
 
 
-
-date_format = datetime.now().strftime("%Y%m%d")
-
-# insert_query_job = BigQueryInsertJobOperator(
-#     task_id="insert_query_job",
-#     configuration={
-#         "query": {
-#             "query": [
-#                 f"INSERT INTO {bigquery_dataset}.{bigquery_table} (product_id, product_name, product_description) values(3,'d','e')"
-#             ],
-#             "useLegacySql": False
-#         }
-#     },
-#     location = 'us-central1',
-#     dag=dag
-# )
-
-insert_spanner_result_to_bq = BigQueryInsertJobOperator(
-    task_id="insert_spanner_result_to_bq",
+ingest_spanner_query_result_to_bq = BigQueryInsertJobOperator(
+    task_id="ingest_spanner_query_result_to_bq",
     configuration={
         "query": {
             "query": f'INSERT INTO {bigquery_dataset}.{bigquery_table} (product_id, product_name, product_description) SELECT * FROM EXTERNAL_QUERY("burner-mankumar24-02.us-central1.span-con-01", "SELECT * FROM products")',
@@ -82,4 +70,4 @@ end = DummyOperator(
     dag=dag
 )
 
-start >> insert_spanner_result_to_bq >> end
+start >> ingest_spanner_query_result_to_bq >> end

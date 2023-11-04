@@ -1,0 +1,7 @@
+{
+  "task_name": "App-02 job",
+  "task_start_time": "2022-01-01T10:00:00Z",
+  "task_end_time": "2022-01-01T11:00:00Z",
+  "task_status": "success",
+  "products": ["order-id 01", "order-id 02", "order-id 03"]
+}
