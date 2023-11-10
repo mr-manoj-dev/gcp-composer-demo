@@ -39,7 +39,7 @@ def get_app_02_xcom_res(app_02_job_dict, ti):
 
 # DAG definitions   
 with DAG(
-    dag_id='XCOM_USIN_JSON_SCHEMA_MULTI_TASK_V1',
+    dag_id='XCOM_USING_JSON_SCHEMA_MULTI_TASK_V1.0',
     catchup=False,
     schedule_interval=timedelta(days=1),
     default_args=default_args
@@ -57,29 +57,20 @@ with DAG(
 
 
     app_01_using_gke_start_pod = GKEStartPodOperator(
-        # The ID specified for the task.
         task_id="app_01_using_gke_start_pod",
         # Name of task you want to run, used to generate Pod ID.
         name="app_01_using_gke_start_pod",
         project_id=PROJECT_ID,
         location=CLUSTER_REGION,
         cluster_name=CLUSTER_NAME,
-
         #xcom push to True
         do_xcom_push=True,
-        # Entrypoint of the container, if not specified the Docker container's
-        # entrypoint is used. The cmds parameter is templated.
+        # Entrypoint of the container
         cmds=["bash", "-c", "/usr/local/bin/greet_from_01.sh"],
-        # The namespace to run within Kubernetes, default namespace is
-        # `default`.
+        # The namespace to run within Kubernetes
         namespace="default",
-        # Docker image specified. Defaults to hub.docker.com, but any fully
-        # qualified URLs will point to a custom repository. Supports private
-        # gcr.io images if the Composer Environment is under the same
-        # project-id as the gcr.io images and the service account that Composer
-        # uses has permission to access the Google Container Registry
-        # (the default service account has permission)
-        image="us-central1-docker.pkg.dev/burner-mankumar24-02/app-img/app-01-image:v2.1.0",
+        # Fully qualified image (containerised image) URL
+        image="us-central1-docker.pkg.dev/burner-mankumar24-02/app-img/app-01:v2.1.2",
     )
 
     get_xcom_app_01_res = PythonOperator(
@@ -90,30 +81,20 @@ with DAG(
 
 
     app_02_using_gke_start_pod = GKEStartPodOperator(
-        # The ID specified for the task.
         task_id="app_02_using_gke_start_pod",
         # Name of task you want to run, used to generate Pod ID.
         name="app_02_using_gke_start_pod",
         project_id=PROJECT_ID,
         location=CLUSTER_REGION,
         cluster_name=CLUSTER_NAME,
-        
         #xcom push to True
         do_xcom_push=True,
-
-        # Entrypoint of the container, if not specified the Docker container's
-        # entrypoint is used. The cmds parameter is templated.
+        # Entrypoint of the container
         cmds=["bash", "-c", "/usr/local/bin/greet_from_02.sh"],
-        # The namespace to run within Kubernetes, default namespace is
-        # `default`.
+        # The namespace to run within Kubernetes
         namespace="default",
-        # Docker image specified. Defaults to hub.docker.com, but any fully
-        # qualified URLs will point to a custom repository. Supports private
-        # gcr.io images if the Composer Environment is under the same
-        # project-id as the gcr.io images and the service account that Composer
-        # uses has permission to access the Google Container Registry
-        # (the default service account has permission)
-        image="us-central1-docker.pkg.dev/burner-mankumar24-02/app-img/app-02-image:v2.1.0",
+        # Fully qualified image (containerised image) URL
+        image="us-central1-docker.pkg.dev/burner-mankumar24-02/app-img/app-02:v2.1.2",
     )
 
     get_xcom_app_02_res = PythonOperator(
