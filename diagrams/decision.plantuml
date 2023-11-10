@@ -2,7 +2,7 @@
 
 title Decision Matrix for Airflow Version Selection
 
-label(top: Start)
+label(top: "Start")
 
 node("Is autoscaling required?")
 node("Is Kubernetes version 1.16 or higher required?")
@@ -27,6 +27,6 @@ edge("Is better performance and scalability required?", "Use Airflow v1", !perfo
 edge("Is easier setup and management desired?", "Use Airflow v2", setup)
 edge("Is easier setup and management desired?", "Use Airflow v1", !setup)
 
-label(bottom: End)
+label(bottom: "End")
 
 @enduml
