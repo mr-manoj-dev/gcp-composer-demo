@@ -9,6 +9,11 @@ gcloud auth login
 ## set project-id
 ```bash
 gcloud config set project <change_to_your_gcp_project_id>
+
+export GCP_PROJECT_ID=burner-mankumar24-02
+export CMP_ENVIRONMENT_NAME=ccpv1-01
+export CMP_LOCATION=us-central1
+export CMP_SVC_ACCOUNT=ccp-demo-svc-01
 ``````
 ## Step-01 : Enable APIs
 ```bash

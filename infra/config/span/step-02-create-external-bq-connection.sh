@@ -20,4 +20,4 @@ bq mk --connection \
 
 end=`date +%s`
 runtime=$((end-start))
-echo "BiqQuery external connectin created and took : ${runtime} seconds!"
+echo "BiqQuery external connection created and took : ${runtime} seconds!"

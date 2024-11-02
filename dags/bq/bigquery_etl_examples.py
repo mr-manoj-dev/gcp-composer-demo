@@ -16,9 +16,9 @@ yesterday = datetime.combine(datetime.today() - timedelta(1), datetime.min.time(
 DATASET_NAME = 'gcs_to_bq_demo'
 SALES_TABLE = 'sales_records'
 PRODUCTS_TABLE = 'products'
-GCS_BUCKET = 'us-central1-ccpv1-01-124da4b5-bucket'
-GCS_SALES_OBJ_PATH = 'data/sales_records.csv'
-GCS_PRODUCTS_OBJ_PATH = 'data/products.csv'
+GCS_BUCKET = 'us-central1-ccpv1-01-be6a9122-bucket'
+GCS_SALES_OBJ_PATH = 'data/input/sales_records.csv'
+GCS_PRODUCTS_OBJ_PATH = 'data/input/products.csv'
 
 # Default arguments
 default_args = {
@@ -97,7 +97,7 @@ with DAG(
             "query": {
                 "query": f"""
                 EXPORT DATA OPTIONS (
-                    uri = 'gs://us-central1-ccpv1-01-124da4b5-bucket/data/extracts/daily_sales_records_{date_format}_*.csv',
+                    uri = 'gs://us-central1-ccpv1-01-be6a9122-bucket/data/extracts/daily_sales_records_{date_format}_*.csv',
                     format = 'CSV',
                     overwrite = true,
                     header = false,
