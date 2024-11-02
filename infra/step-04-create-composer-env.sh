@@ -24,19 +24,24 @@ source $config_dir/config/${config_file}
 
 
 SERVICE_ACCOUNT="${CMP_SVC_ACCOUNT}@${GCP_PROJECT_ID}.iam.gserviceaccount.com"
+
 # Create Composer environment
+# gcloud script to create composer-1 Environment
+#gcloud composer environments create $CMP_ENVIRONMENT_NAME \
+#    --project $GCP_PROJECT_ID \
+#    --location=$CMP_LOCATION \
+#    --image-version=composer-1.20.12-airflow-2.4.3 \
+#    --node-count=3 \
+#    --zone=us-central1-a \
+#    --machine-type=n1-standard-1 \
+#    --service-account=${CMP_SVC_ACCOUNT}@${GCP_PROJECT_ID}.iam.gserviceaccount.com \
+#    --enable-ip-alias \
+#    --async
+
 gcloud composer environments create $CMP_ENVIRONMENT_NAME \
-    --project $GCP_PROJECT_ID \
-    --location=$CMP_LOCATION \
-    --image-version=composer-1.20.12-airflow-2.4.3 \
-    --node-count=3 \
-    --zone=us-central1-a \
-    --machine-type=n1-standard-1 \
-    --disk-size=100GB \
-    --service-account=${CMP_SVC_ACCOUNT}@${GCP_PROJECT_ID}.iam.gserviceaccount.com \
-    --web-server-machine-type=composer-n1-webserver-2 \
-    --enable-ip-alias \
-    --async
+    --location $CMP_LOCATION \
+    --image-version composer-3-airflow-2.7.3 \
+    --service-account ${CMP_SVC_ACCOUNT}@${GCP_PROJECT_ID}.iam.gserviceaccount.com
 
 end=`date +%s`
 runtime=$((end-start))
